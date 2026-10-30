@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f5f8b">
+<title>EPOC2 修了要件ナビ</title>
+<style>
+:root{
+  --bg:#f4f6f8; --card:#ffffff; --ink:#1c2530; --sub:#5c6b7a; --line:#dde3ea;
+  --pri:#1f5f8b; --pri-weak:#e3eef7; --sym:#1f7a6c; --sym-weak:#e1f3ef; --dis:#7a4b9c; --dis-weak:#f0e8f7;
+  --warn:#c0392b; --warn-weak:#fdecea; --ok:#2e7d32; --chip:#eef1f4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12171d; --card:#1b222b; --ink:#e6ebf0; --sub:#9aa8b6; --line:#2c3642;
+    --pri:#5fa8dc; --pri-weak:#1d3345; --sym:#4cc2ad; --sym-weak:#173630; --dis:#b98ae0; --dis-weak:#2d2239;
+    --warn:#ff7b6b; --warn-weak:#3a1f1c; --ok:#6cc070; --chip:#262f3a;
+  }
+}
+:root[data-theme="dark"]{
+    --bg:#12171d; --card:#1b222b; --ink:#e6ebf0; --sub:#9aa8b6; --line:#2c3642;
+    --pri:#5fa8dc; --pri-weak:#1d3345; --sym:#4cc2ad; --sym-weak:#173630; --dis:#b98ae0; --dis-weak:#2d2239;
+    --warn:#ff7b6b; --warn-weak:#3a1f1c; --ok:#6cc070; --chip:#262f3a;
+  }
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif;font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:10;background:var(--pri);color:#fff;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
+header h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em}
+header .hsub{font-size:12px;opacity:.9}
+main{max-width:760px;margin:0 auto;padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 10px}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom button{flex:1;border:0;background:none;color:var(--sub);padding:8px 2px 9px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav.bottom button .ic{font-size:20px;line-height:1}
+nav.bottom button.active{color:var(--pri);font-weight:700}
+.btn{appearance:none;border:1px solid var(--pri);background:var(--pri);color:#fff;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:600;cursor:pointer;min-height:44px}
+.btn.sec{background:transparent;color:var(--pri)}
+.btn.danger{background:transparent;color:var(--warn);border-color:var(--warn)}
+.btn.small{padding:6px 10px;min-height:36px;font-size:13px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label.fl{display:block;font-size:13px;color:var(--sub);margin:0 0 4px;font-weight:600}
+input[type=text],input[type=search],textarea{width:100%;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+.muted{color:var(--sub);font-size:13px}
+.progress{margin:6px 0 10px}
+.pline{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}
+.pbar{height:10px;background:var(--chip);border-radius:6px;overflow:hidden}
+.pbar>i{display:block;height:100%;border-radius:6px}
+.pbar.s>i{background:var(--sym)} .pbar.d>i{background:var(--dis)} .pbar.t>i{background:var(--pri)}
+.banner{background:var(--pri-weak);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.warnbox{background:var(--warn-weak);border:2px solid var(--warn);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.warnbox h2{color:var(--warn);margin:0 0 6px;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{display:inline-block;font-size:12px;padding:3px 8px;border-radius:999px;background:var(--chip);color:var(--ink);white-space:nowrap}
+.chip.s{background:var(--sym-weak);color:var(--sym)} .chip.d{background:var(--dis-weak);color:var(--dis)}
+.chip.w{background:var(--card);color:var(--warn);border:1px solid var(--warn);font-weight:600}
+.chip.g{opacity:.55}
+.case{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card)}
+.case .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.case .cid{font-weight:700;font-size:15px;word-break:break-all}
+.case .cnt{font-size:12px;color:var(--sub);white-space:nowrap}
+.case .memo{font-size:13px;color:var(--sub);margin:2px 0 6px}
+.case .act{display:flex;gap:6px;margin-top:8px}
+details.cat{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden}
+details.cat>summary{list-style:none;padding:11px 12px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+details.cat>summary::-webkit-details-marker{display:none}
+details.cat.s>summary{background:var(--sym-weak);color:var(--sym)}
+details.cat.d>summary{background:var(--dis-weak);color:var(--dis)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;padding:10px}
+.pick{position:relative}
+.pick input{position:absolute;opacity:0;pointer-events:none}
+.pick span{display:flex;align-items:center;gap:6px;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;cursor:pointer;background:var(--card);user-select:none}
+.pick span b{font-size:11px;color:var(--sub);font-weight:600;min-width:18px}
+.pick input:checked+span{border-color:currentColor;font-weight:600}
+details.cat.s .pick input:checked+span{background:var(--sym-weak);color:var(--sym)}
+details.cat.d .pick input:checked+span{background:var(--dis-weak);color:var(--dis)}
+.pick input:focus-visible+span{outline:2px solid var(--pri);outline-offset:1px}
+.big{font-size:30px;font-weight:800;line-height:1.1}
+.stat{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.cands{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
+.cands button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;min-height:36px}
+.cands button.active{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+.plan{border-left:4px solid var(--pri);padding:8px 10px;margin-bottom:10px;background:var(--bg);border-radius:0 10px 10px 0}
+.plan .cid{font-weight:700}
+.plan .lbl{font-size:12px;color:var(--sub);margin:6px 0 3px}
+table.map{width:100%;border-collapse:collapse;font-size:13px}
+table.map th,table.map td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}
+table.map th{font-size:12px;color:var(--sub);background:var(--card)}
+table.map tr.cath td{background:var(--chip);font-weight:700;font-size:12px}
+table.map tr.miss td{background:var(--warn-weak);color:var(--warn);font-weight:600}
+table.map td.no{color:var(--sub);white-space:nowrap;width:2.5em}
+.assign{font-weight:700;color:var(--pri);word-break:break-all}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.seg button{flex:1;border:0;background:var(--card);color:var(--sub);padding:9px;font-size:13px;cursor:pointer}
+.seg button.active{background:var(--pri-weak);color:var(--pri);font-weight:700}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:90vw;text-align:center}
+.toast.show{opacity:.92}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;color:var(--sub);padding:24px 8px}
+#pickTotal{position:sticky;top:calc(62px + env(safe-area-inset-top));z-index:5;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:0 0 10px;font-size:13px;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>EPOC2 修了要件ナビ</h1>
+  <div class="hsub" id="hdrProgress">—</div>
+</header>
+
+<main>
+  <section class="tab active" id="tab-list">
+    <div id="dummyBanner"></div>
+    <div class="card">
+      <h2>達成状況（登録症例全体）</h2>
+      <div id="listProgress"></div>
+    </div>
+    <div id="listMissing"></div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <h2 style="margin:0">登録症例 <span class="muted" id="caseCount"></span></h2>
+        <button class="btn small" onclick="newCase()">＋ 新規登録</button>
+      </div>
+      <input type="search" id="filter" placeholder="症例ID・メモ・項目名で絞り込み" oninput="renderList()">
+      <div id="caseList" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-edit">
+    <div class="card">
+      <h2 id="editTitle">症例の登録</h2>
+      <label class="fl" for="fId">EPOC2 症例ID（必須）</label>
+      <input type="text" id="fId" autocomplete="off" placeholder="EPOC2の症例IDを入力">
+      <p class="muted" style="margin:4px 0 12px">※ 患者氏名・カルテ番号は入力しないでください。</p>
+      <div class="banner" style="margin-bottom:10px">経験した項目は<b>いくつでも</b>チェックしてください。EPOC2では1症例につき<b>10項目まで</b>しか申告できないため、最適化の計算で自動的に10項目以内に振り分けます。</div>
+      <div id="pickTotal"></div>
+      <div id="picker"></div>
+      <label class="fl" for="fMemo">メモ（任意：診療科、担当時期など）</label>
+      <textarea id="fMemo" placeholder="例：総合内科 2026年6月"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" style="flex:2" onclick="saveCase()">保存</button>
+        <button class="btn sec" style="flex:1" onclick="cancelEdit()">キャンセル</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-opt">
+    <div class="card">
+      <h2>最小症例の組み合わせ</h2>
+      <p class="muted" style="margin-top:0">登録症例のうち、経験済みの全項目を申告できる最少症例数の組み合わせを厳密に求めます。EPOC2の「1症例につき10項目まで」の制限を考慮します（分枝限定法＋最大フローによる完全探索）。</p>
+      <button class="btn block" id="runBtn" onclick="runOptimize()">計算する</button>
+      <div id="optStatus" class="muted" style="margin-top:8px"></div>
+    </div>
+    <div id="optResult"></div>
+  </section>
+
+  <section class="tab" id="tab-data">
+    <div class="card">
+      <h2>エクスポート</h2>
+      <p class="muted" style="margin-top:0">CSV：1列目＝症例ID、2〜56列目＝各項目（該当＝1）、最終列＝メモ。Excelで文字化けしないようBOM付きUTF-8で出力します。</p>
+      <div class="row">
+        <button class="btn" onclick="exportCSV()">CSV で保存</button>
+        <button class="btn sec" onclick="exportJSON()">JSON で保存</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>インポート</h2>
+      <p class="muted" style="margin-top:0">CSV / JSON を読み込みます。同じ症例IDは上書きされます。</p>
+      <div class="seg" id="impMode">
+        <button class="active" data-v="merge" onclick="setImpMode(this)">追加・上書き</button>
+        <button data-v="replace" onclick="setImpMode(this)">全件置き換え</button>
+      </div>
+      <input type="file" id="impFile" accept=".csv,.json,text/csv,application/json" style="display:none" onchange="importFile(this)">
+      <button class="btn block" onclick="document.getElementById('impFile').click()">ファイルを選択</button>
+    </div>
+    <div class="card">
+      <h2>データ管理</h2>
+      <p class="muted" style="margin-top:0">データはこの端末のブラウザ内（localStorage）にのみ保存され、外部には一切送信されません。ブラウザの閲覧データ消去で失われるため、定期的にエクスポートしてください。</p>
+      <div class="row">
+        <button class="btn sec" onclick="loadDummy()">ダミーデータを読み込む</button>
+        <button class="btn danger" onclick="clearAll()">全データ削除</button>
+      </div>
+      <p class="muted" id="storageInfo" style="margin-bottom:0"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom">
+  <button data-tab="list" class="active" onclick="showTab('list')"><span class="ic">📋</span>症例一覧</button>
+  <button data-tab="edit" onclick="newCase()"><span class="ic">＋</span>登録</button>
+  <button data-tab="opt" onclick="showTab('opt')"><span class="ic">🧮</span>最適化</button>
+  <button data-tab="data" onclick="showTab('data')"><span class="ic">💾</span>データ</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================= 項目定義 ================= */
+const SYM_NAMES = ["ショック","体重減少・るい痩","発疹","黄疸","発熱","もの忘れ","頭痛","めまい","意識障害・失神","けいれん発作","視力障害","胸痛","心停止","呼吸困難","吐血・喀血","下血・血便","嘔気・嘔吐","腹痛","便通異常（下痢便秘）","熱傷・外傷","腰・背部痛","関節痛","運動麻痺・筋力低下","排尿障害（尿失禁排尿困難）","興奮・せん妄","抑うつ","成長・発達の障害","妊娠・出産","終末期の症候"];
+const DIS_NAMES = ["脳血管障害","認知症","急性冠症候群","心不全","大動脈瘤","高血圧","肺癌","肺炎","急性上気道炎","気管支喘息","COPD","急性胃腸炎","胃癌","消化性潰瘍","肝炎・肝硬変","胆石症","大腸癌","腎盂腎炎","尿路結石","腎不全","高エネルギー外傷・骨折","糖尿病","脂質異常症","うつ病","統合失調症","依存症"];
+const CATS = {S:{label:"経験すべき症候",short:"症候",n:29}, D:{label:"経験すべき疾病・病態",short:"疾病・病態",n:26}};
+const ITEMS = [
+  ...SYM_NAMES.map((name,i)=>({key:"S"+(i+1),cat:"S",no:i+1,name})),
+  ...DIS_NAMES.map((name,i)=>({key:"D"+(i+1),cat:"D",no:i+1,name}))
+];
+const NITEMS = ITEMS.length; // 55
+const MAX_PER_CASE = 10;       // EPOC2で1症例あたり申告できる項目数の上限
+const IDX = Object.fromEntries(ITEMS.map((it,i)=>[it.key,i]));
+const csvLabel = it => `${CATS[it.cat].short}${String(it.no).padStart(2,"0")}_${it.name}`;
+
+/* ================= ダミーデータ（テスト用・架空） ================= */
+const DUMMY = [
+  ["DUMMY-001","総合内科 4月／誤嚥性肺炎・心不全・糖尿病",["S5","S14","S25","S24","D8","D4","D22","D6","D20"]],
+  ["DUMMY-002","循環器内科 4月／急性心筋梗塞・心肺停止",["S12","S13","S1","S9","D3","D23","D6"]],
+  ["DUMMY-003","脳神経内科 5月／脳梗塞",["S23","S8","S11","S7","D1","D6","D23"]],
+  ["DUMMY-004","消化器内科 5月／出血性胃潰瘍",["S15","S18","S17","S1","S16","D14"]],
+  ["DUMMY-005","消化器内科 6月／アルコール性肝硬変",["S4","S15","S25","D15","D26"]],
+  ["DUMMY-006","外科 6月／大腸癌",["S16","S19","S2","S18","D17"]],
+  ["DUMMY-007","外科 7月／総胆管結石・胆管炎",["S18","S5","S4","D16"]],
+  ["DUMMY-008","救急 7月／交通外傷",["S20","S21","S22","S1","D21"]],
+  ["DUMMY-009","救急 8月／尿路結石・腎盂腎炎",["S21","S18","S24","S5","S17","D19","D18"]],
+  ["DUMMY-010","呼吸器内科 8月／肺癌終末期・COPD",["S29","S14","S15","S2","S26","D7","D11"]],
+  ["DUMMY-011","精神科 9月／うつ病",["S26","S6","D24","D26"]],
+  ["DUMMY-012","産婦人科 10月／妊娠高血圧・分娩",["S28","S7","D6"]],
+  ["DUMMY-013","小児科 11月／喘息発作・上気道炎",["S14","S5","S3","D10","D9"]],
+  ["DUMMY-014","救急 12月／けいれん重積・認知症",["S10","S9","S6","D2"]],
+  ["DUMMY-015","地域医療 1月／急性胃腸炎",["S19","S17","S5","S18","D12"]],
+  ["DUMMY-016","心臓血管外科 1月／腹部大動脈瘤",["S21","S18","D5","D6","D23"]],
+  ["DUMMY-017","総合内科 2月／腎盂腎炎",["S5","S24","D18","D22"]],
+  ["DUMMY-018","外科 2月／胃癌",["S2","S17","S18","D13"]],
+  ["DUMMY-019","救急 3月／胸痛（大動脈解離疑い）",["S12","S1","D5","D6"]],
+  ["DUMMY-020","地域医療 3月／認知症・心不全",["S6","S14","S25","D2","D4"]],
+  ["DUMMY-021","総合内科 3月／多疾患併存の高齢者（14項目）",["S2","S5","S6","S14","S17","S24","S25","D2","D4","D6","D8","D20","D22","D23"]],
+  ["DUMMY-022","救急 3月／多発外傷・出血性ショック（12項目）",["S1","S9","S13","S15","S20","S21","S22","D5","D6","D21","D22","D26"]]
+];
+const dummyCases = () => DUMMY.map(([id,memo,items])=>normCase({id,memo,items}));
+
+/* ================= 状態・保存 ================= */
+const STORE_KEY = "epoc2-cover-v1";
+let state = {cases:[], isDummy:false};
+let editingId = null;
+let lastResult = null;
+let curCand = 0;
+
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  catch(e){ toast("保存に失敗しました（ブラウザの設定を確認してください）"); }
+  lastResult = null;
+}
+function load(){
+  let raw = null;
+  try{ raw = localStorage.getItem(STORE_KEY); }catch(e){}
+  if(raw){
+    try{ const o = JSON.parse(raw); if(o && Array.isArray(o.cases)){ state = {cases:o.cases.map(normCase).filter(Boolean), isDummy:!!o.isDummy}; return; } }catch(e){}
+  }
+  state = {cases:dummyCases(), isDummy:true};  // 初回起動時はダミーデータ
+  save();
+}
+function normCase(c){
+  if(!c || c.id==null) return null;
+  const id = String(c.id).trim(); if(!id) return null;
+  const items = [...new Set((c.items||[]).filter(k=>k in IDX))].sort((a,b)=>IDX[a]-IDX[b]);
+  return {id, memo: c.memo ? String(c.memo) : "", items};
+}
+
+/* ================= 共通 ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200); }
+function chip(key, extra=""){ const it=ITEMS[IDX[key]]; return `<span class="chip ${it.cat.toLowerCase()} ${extra}">${esc(it.name)}</span>`; }
+
+function showTab(name){
+  document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("active", s.id==="tab-"+name));
+  document.querySelectorAll("nav.bottom button").forEach(b=>b.classList.toggle("active", b.dataset.tab===name));
+  if(name==="list") renderList();
+  if(name==="opt") renderResult();
+  if(name==="data") renderDataInfo();
+  window.scrollTo(0,0);
+}
+
+function coverage(cases){
+  cases = cases || state.cases;
+  const covered = new Set(); cases.forEach(c=>c.items.forEach(k=>covered.add(k)));
+  const r = {S:0,D:0,total:covered.size,set:covered};
+  covered.forEach(k=>r[ITEMS[IDX[k]].cat]++);
+  return r;
+}
+function progressHTML(cv){
+  const bar=(cls,label,v,n)=>`<div class="progress"><div class="pline"><span>${label}</span><b>${v} / ${n}（${Math.round(v/n*100)}%）</b></div><div class="pbar ${cls}"><i style="width:${v/n*100}%"></i></div></div>`;
+  return bar("t","合計",cv.total,NITEMS)+bar("s",CATS.S.label,cv.S,29)+bar("d",CATS.D.label,cv.D,26);
+}
+function missingHTML(cv){
+  const miss = ITEMS.filter(it=>!cv.set.has(it.key));
+  if(!miss.length) return `<div class="banner">🎉 登録症例で全${NITEMS}項目をカバーできています。</div>`;
+  let h = `<div class="warnbox"><h2>⚠ 未経験項目 ${miss.length}件</h2><div class="muted" style="margin-bottom:6px">現在の登録症例ではカバーできていません。</div>`;
+  ["S","D"].forEach(cat=>{ const g=miss.filter(it=>it.cat===cat); if(g.length) h+=`<div class="muted" style="margin:8px 0 4px">${CATS[cat].label}（${g.length}）</div><div class="chips">${g.map(it=>`<span class="chip w">${it.no}. ${esc(it.name)}</span>`).join("")}</div>`; });
+  return h+"</div>";
+}
+function renderHeader(){
+  const cv = coverage();
+  $("hdrProgress").textContent = `達成 ${cv.total}/${NITEMS}（症候 ${cv.S}/29・疾病 ${cv.D}/26）・登録 ${state.cases.length}症例`;
+}
+
+/* ================= 一覧 ================= */
+function renderList(){
+  renderHeader();
+  const cv = coverage();
+  $("listProgress").innerHTML = progressHTML(cv);
+  $("listMissing").innerHTML = missingHTML(cv);
+  $("dummyBanner").innerHTML = state.isDummy ? `<div class="banner">🧪 現在は<b>テスト用ダミーデータ</b>が入っています。実際に使う前に「データ」タブから全データ削除してください。</div>` : "";
+  $("caseCount").textContent = `${state.cases.length}件`;
+  const q = $("filter").value.trim().toLowerCase();
+  const list = state.cases.filter(c=>{
+    if(!q) return true;
+    return (c.id+" "+c.memo+" "+c.items.map(k=>ITEMS[IDX[k]].name).join(" ")).toLowerCase().includes(q);
+  });
+  if(!state.cases.length){ $("caseList").innerHTML = `<div class="empty">症例がまだありません。<br>「＋ 新規登録」から追加してください。</div>`; return; }
+  if(!list.length){ $("caseList").innerHTML = `<div class="empty">該当する症例がありません。</div>`; return; }
+  $("caseList").innerHTML = list.map(c=>{
+    const ns = c.items.filter(k=>k[0]==="S").length, nd = c.items.length-ns;
+    return `<div class="case">
+      <div class="top"><div class="cid">${esc(c.id)}</div><div class="cnt">症候${ns}・疾病${nd}${c.items.length>MAX_PER_CASE?`<br><span style="color:var(--warn);font-weight:600">計${c.items.length}項目（申告は${MAX_PER_CASE}まで）</span>`:""}</div></div>
+      ${c.memo?`<div class="memo">${esc(c.memo)}</div>`:""}
+      <div class="chips">${c.items.map(k=>chip(k)).join("")||'<span class="muted">項目未選択</span>'}</div>
+      <div class="act"><button class="btn small sec" data-id="${esc(c.id)}" onclick="editCase(this.dataset.id)">編集</button><button class="btn small danger" data-id="${esc(c.id)}" onclick="deleteCase(this.dataset.id)">削除</button></div>
+    </div>`;
+  }).join("");
+}
+
+/* ================= 登録・編集 ================= */
+function buildPicker(){
+  let h = "";
+  ["S","D"].forEach(cat=>{
+    h += `<details class="cat ${cat.toLowerCase()}" open><summary><span>${CATS[cat].label}（${CATS[cat].n}）</span><span id="pc-${cat}">0選択</span></summary><div class="grid">`;
+    ITEMS.filter(it=>it.cat===cat).forEach(it=>{
+      h += `<label class="pick"><input type="checkbox" value="${it.key}" onchange="updatePickCount()"><span><b>${it.no}</b>${esc(it.name)}</span></label>`;
+    });
+    h += `</div></details>`;
+  });
+  $("picker").innerHTML = h;
+}
+function updatePickCount(){
+  ["S","D"].forEach(cat=>{
+    const n = [...document.querySelectorAll(`#picker input:checked`)].filter(i=>i.value[0]===cat).length;
+    $("pc-"+cat).textContent = n+"選択";
+  });
+  const t = document.querySelectorAll("#picker input:checked").length;
+  $("pickTotal").innerHTML = `選択中：${t}項目` + (t>MAX_PER_CASE ? `　<span style="color:var(--warn)">申告は${MAX_PER_CASE}項目まで（自動で振り分け）</span>` : "");
+}
+function fillForm(c){
+  $("fId").value = c ? c.id : "";
+  $("fMemo").value = c ? c.memo : "";
+  const set = new Set(c ? c.items : []);
+  document.querySelectorAll("#picker input").forEach(i=>i.checked=set.has(i.value));
+  updatePickCount();
+}
+function newCase(){ editingId=null; $("editTitle").textContent="症例の登録"; fillForm(null); showTab("edit"); }
+function editCase(id){ const c=state.cases.find(x=>x.id===id); if(!c) return; editingId=id; $("editTitle").textContent="症例の編集"; fillForm(c); showTab("edit"); }
+function cancelEdit(){ editingId=null; showTab("list"); }
+function saveCase(){
+  const id = $("fId").value.trim();
+  if(!id){ toast("症例IDを入力してください"); $("fId").focus(); return; }
+  const items = [...document.querySelectorAll("#picker input:checked")].map(i=>i.value);
+  if(!items.length && !confirm("項目が1つも選択されていません。このまま保存しますか？")) return;
+  if(state.cases.some(c=>c.id===id) && id!==editingId){ toast("同じ症例IDが既に登録されています"); return; }
+  const rec = normCase({id, memo:$("fMemo").value.trim(), items});
+  const i = editingId!==null ? state.cases.findIndex(c=>c.id===editingId) : -1;
+  if(i>=0) state.cases[i]=rec; else state.cases.push(rec);
+  save(); editingId=null; toast("保存しました"); showTab("list");
+}
+function deleteCase(id){
+  if(!confirm(`症例「${id}」を削除しますか？`)) return;
+  state.cases = state.cases.filter(c=>c.id!==id); save(); renderList(); toast("削除しました");
+}
+
+/* ================= 最適化ソルバー（厳密解：分枝限定法＋最大フロー） =================
+   問題：症例の集合 T を選び、各項目を「その項目を含む T 内の症例」に1つずつ割り当てる。
+         ただし1症例に割り当てられる項目は最大 CAP（=10）個。|T| を最小化する。
+   ・割り当て可能か：項目→症例（容量CAP）の二部グラフで最大マッチング（増加路法）を計算。
+     症例を1つ追加するたびに差分だけ増加路を探す（前の最大マッチングから再開）。
+   ・目標値：全登録症例を使ったときの最大マッチング数（通常は経験済み項目の全数）。
+   ・分枝：未割当の項目 e から交互路で到達できる項目集合 X_e を求める。
+           目標を満たす上位集合は必ず「X_e のいずれかを含む未選択症例」を含む（Hall の定理）。
+           候補が最少となる e を選び、その候補ごとに分岐。試した症例は兄弟分岐から除外。
+   ・下界：max( ceil(未割当数/CAP),  Σ_{未カバー項目} 1/max(min(寄与,CAP)) の切り上げ )
+   ・第1段階で最小数を確定し、第2段階で最小数の組み合わせを列挙（上限あり）。 */
+/*SOLVER_START*/
+function solveCapCover(caseItems, opts){
+  opts = opts || {};
+  const CAP = opts.cap || 10, K = opts.maxSolutions || 10, NI = opts.nItems || 55;
+  const nodeLimit = opts.nodeLimit || 3e6, timeLimit = opts.timeLimit || 15000;
+  const t0 = Date.now(), n = caseItems.length;
+  const CI = caseItems.map(a => [...new Set(a)]);
+  const itemCases = Array.from({length:NI}, () => []);
+  CI.forEach((it,c) => it.forEach(e => itemCases[e].push(c)));
+  const coverable = []; for(let e=0;e<NI;e++) if(itemCases[e].length) coverable.push(e);
+  const NC = coverable.length;
+
+  const inC = new Uint8Array(n), excl = new Uint8Array(n), covCnt = new Int16Array(NI);
+  const matchOf = new Int16Array(NI).fill(-1), load = new Int16Array(n);
+  const visC = new Int32Array(n), visI = new Int32Array(NI), candMark = new Int32Array(n), gtmp = new Int16Array(n);
+  let vst = 0, cst = 0, matched = 0;
+  const stackM = [], stackL = [], stackN = [];
+
+  function augment(e){
+    const cl = itemCases[e];
+    for(let j=0;j<cl.length;j++){
+      const c = cl[j]; if(!inC[c] || visC[c]===vst) continue; visC[c] = vst;
+      if(load[c] < CAP){ matchOf[e] = c; load[c]++; return true; }
+      const it = CI[c];
+      for(let k=0;k<it.length;k++){ const f = it[k]; if(matchOf[f]===c && augment(f)){ matchOf[e] = c; return true; } }
+    }
+    return false;
+  }
+  function augmentAll(){ for(const e of coverable) if(matchOf[e] < 0){ vst++; if(augment(e)) matched++; } }
+  function add(c, d){
+    if(!stackM[d]){ stackM[d] = new Int16Array(NI); stackL[d] = new Int16Array(n); }
+    stackM[d].set(matchOf); stackL[d].set(load); stackN[d] = matched;
+    inC[c] = 1; for(const e of CI[c]) covCnt[e]++;
+    augmentAll();
+  }
+  function remove(c, d){
+    inC[c] = 0; for(const e of CI[c]) covCnt[e]--;
+    matchOf.set(stackM[d]); load.set(stackL[d]); matched = stackN[d];
+  }
+  // 未割当の項目 roots から交互路で到達できる項目集合
+  function reach(roots){
+    vst++; const q = [];
+    for(const e of roots){ if(visI[e]!==vst){ visI[e]=vst; q.push(e); } }
+    for(let h=0; h<q.length; h++){
+      for(const c of itemCases[q[h]]){
+        if(!inC[c] || visC[c]===vst) continue; visC[c] = vst;
+        for(const f of CI[c]) if(matchOf[f]===c && visI[f]!==vst){ visI[f]=vst; q.push(f); }
+      }
+    }
+    return q;
+  }
+  function candidatesOf(X){
+    cst++; const out = [];
+    for(const f of X) for(const c of itemCases[f]) if(!inC[c] && !excl[c] && candMark[c]!==cst){ candMark[c]=cst; out.push(c); }
+    return out;
+  }
+
+  // 目標値：全症例を使ったときの最大割り当て数
+  const nonEmpty = []; for(let c=0;c<n;c++) if(CI[c].length) nonEmpty.push(c);
+  nonEmpty.forEach((c,i)=>add(c,i)); const target = matched;
+  for(let i=nonEmpty.length-1;i>=0;i--) remove(nonEmpty[i], i);
+  const base = {target, coverable:NC};
+  if(target===0) return {...base, opt:0, solutions:[[]], assignments:[{}], proven:true, complete:true, nodes:0, ms:0};
+
+  // 貪欲法で初期上界
+  const greedy = [];
+  while(matched < target){
+    const free = coverable.filter(e=>matchOf[e]<0);
+    const cand = candidatesOf(reach(free));
+    let best=-1, bestM=-1, bestCov=-1; const d = greedy.length;
+    for(const c of cand){
+      add(c,d); const m = matched; remove(c,d);
+      const cov = CI[c].reduce((s,e)=>s+(covCnt[e]===0?1:0),0);
+      if(m>bestM || (m===bestM && cov>bestCov)){ best=c; bestM=m; bestCov=cov; }
+    }
+    add(best,d); greedy.push(best);
+  }
+  for(let i=greedy.length-1;i>=0;i--) remove(greedy[i], i);
+
+  let nodes = 0, aborted = false, deadline = t0 + timeLimit;
+  const chosen = [];
+  function dfs(ctx){
+    if(aborted || ctx.done) return;
+    nodes++;
+    if(nodes>nodeLimit || ((nodes&511)===0 && Date.now()>deadline)){ aborted = true; return; }
+    if(matched===target){ ctx.onSolution(chosen); return; }
+    const d = chosen.length;
+    // 下界
+    let lb = Math.ceil((target-matched)/CAP);
+    const unc = [];
+    if(target===NC){
+      for(const e of coverable) if(covCnt[e]===0) unc.push(e);
+      if(unc.length){
+        for(const e of unc) for(const c of itemCases[e]) if(!inC[c] && !excl[c]) gtmp[c]++;
+        let s = 0, dead = false;
+        for(const e of unc){
+          let mx = 0; for(const c of itemCases[e]) if(!inC[c] && !excl[c]){ const g = gtmp[c]<CAP?gtmp[c]:CAP; if(g>mx) mx=g; }
+          if(mx===0){ dead = true; break; }
+          s += 1/mx;
+        }
+        for(const e of unc) for(const c of itemCases[e]) gtmp[c]=0;
+        if(dead) return;
+        const lb2 = Math.ceil(s-1e-9); if(lb2>lb) lb=lb2;
+      }
+    }
+    if(ctx.strict ? d+lb>=ctx.bound : d+lb>ctx.bound) return;
+    // 分枝候補
+    let cand = null;
+    if(target===NC){
+      if(unc.length){      // 未カバー項目：それを含む症例のどれかが必須
+        for(const e of unc){ const cs = itemCases[e].filter(c=>!inC[c] && !excl[c]); if(!cand || cs.length<cand.length){ cand = cs; if(cs.length<=1) break; } }
+      } else {
+        for(const e of coverable){
+          if(matchOf[e]>=0) continue;
+          const cs = candidatesOf(reach([e]));
+          if(!cand || cs.length<cand.length){ cand = cs; if(cs.length<=1) break; }
+        }
+      }
+    } else {
+      cand = candidatesOf(reach(coverable.filter(e=>matchOf[e]<0)));
+    }
+    if(!cand || !cand.length) return;
+    // 並べ替え：未割当項目を多く含む症例から
+    const score = c => { let s=0; for(const e of CI[c]) if(matchOf[e]<0) s++; return Math.min(s,CAP)*100 + CI[c].length; };
+    const sc = new Map(cand.map(c=>[c,score(c)]));
+    cand.sort((a,b)=>sc.get(b)-sc.get(a));
+    const marked = [];
+    for(const c of cand){
+      add(c,d); chosen.push(c);
+      dfs(ctx);
+      chosen.pop(); remove(c,d);
+      if(aborted || ctx.done) break;
+      excl[c] = 1; marked.push(c);
+    }
+    for(const c of marked) excl[c] = 0;
+  }
+
+  // 第1段階：最小数の確定
+  let best = greedy.slice();
+  const ctx1 = {strict:true, bound:greedy.length, done:false,
+    onSolution(ch){ if(ch.length<this.bound){ this.bound = ch.length; best = ch.slice(); } }};
+  dfs(ctx1);
+  const proven = !aborted, opt = best.length;
+
+  // 第2段階：最小数の組み合わせを列挙
+  aborted = false; const nodes1 = nodes; nodes = 0;
+  deadline = Math.min(t0 + timeLimit, Date.now() + (opts.enumTimeLimit || 4000));  // 候補列挙は短めに打ち切る
+  const sols = [], seen = new Set();
+  const ctx2 = {strict:false, bound:opt, done:false,
+    onSolution(ch){ const s = ch.slice().sort((a,b)=>a-b), key = s.join(","); if(!seen.has(key)){ seen.add(key); sols.push(s); if(sols.length>=K) this.done = true; } }};
+  dfs(ctx2);
+  const complete = !aborted && !ctx2.done;
+  if(!sols.length) sols.push(best.slice().sort((a,b)=>a-b));
+  return {...base, opt, solutions:sols, assignments:sols.map(s=>assignBalanced(s, CI, itemCases, CAP, NI)),
+          proven, complete, nodes:nodes1+nodes, ms:Date.now()-t0};
+}
+
+// 選ばれた症例への割り当て（申告数をなるべく均等に、各症例 CAP 以下、最大数を割り当て）
+function assignBalanced(sol, CI, itemCases, CAP, NI){
+  const inS = new Set(sol), load = new Map(sol.map(c=>[c,0])), match = new Map();
+  const items = []; for(let e=0;e<NI;e++){ const cs = itemCases[e].filter(c=>inS.has(c)); if(cs.length) items.push({e,cs}); }
+  items.sort((a,b)=>a.cs.length-b.cs.length || a.e-b.e);
+  for(const {e,cs} of items){
+    let b = -1; for(const c of cs) if(load.get(c)<CAP && (b<0 || load.get(c)<load.get(b))) b = c;
+    if(b>=0){ match.set(e,b); load.set(b, load.get(b)+1); }
+  }
+  // 貪欲で入らなかった項目は増加路で押し込む
+  const csOf = new Map(items.map(o=>[o.e,o.cs]));
+  let vis;
+  const aug = e => {
+    for(const c of csOf.get(e)){
+      if(vis.has(c)) continue; vis.add(c);
+      if(load.get(c)<CAP){ match.set(e,c); load.set(c,load.get(c)+1); return true; }
+      for(const f of CI[c]) if(match.get(f)===c && aug(f)){ match.set(e,c); return true; }
+    }
+    return false;
+  };
+  for(const {e} of items) if(!match.has(e)){ vis = new Set(); aug(e); }
+  return Object.fromEntries(match);
+}
+/*SOLVER_END*/
+
+function runOptimize(){
+  if(!state.cases.length){ toast("症例が登録されていません"); return; }
+  $("runBtn").disabled = true;
+  $("optStatus").innerHTML = `<span class="spinner"></span> 計算中…`;
+  setTimeout(()=>{
+    const snap = state.cases.map(c=>({...c, items:[...c.items]}));
+    const res = solveCapCover(snap.map(c=>c.items.map(k=>IDX[k])), {cap:MAX_PER_CASE, maxSolutions:10, nItems:NITEMS});
+    res.snapshot = snap;
+    lastResult = res; curCand = 0;
+    $("runBtn").disabled = false;
+    $("optStatus").textContent = `計算時間 ${res.ms} ms（探索ノード数 ${res.nodes.toLocaleString()}）`;
+    renderResult();
+  }, 30);
+}
+
+function renderResult(){
+  renderHeader();
+  const box = $("optResult");
+  if(!lastResult){
+    $("optStatus").textContent = "";
+    const cv = coverage();
+    box.innerHTML = `<div class="card">${progressHTML(cv)}</div>` + missingHTML(cv) + `<div class="empty">「計算する」を押すと結果が表示されます。</div>`;
+    return;
+  }
+  const r = lastResult, snap = r.snapshot, cv = coverage(snap);
+  const sol = r.solutions[curCand], asg = r.assignments[curCand];
+  const inSol = new Set(sol);
+  const reported = {S:0, D:0, total:0, set:new Set()};
+  Object.keys(asg).forEach(e=>{ const it=ITEMS[+e]; reported.set.add(it.key); reported[it.cat]++; reported.total++; });
+  const capShort = ITEMS.filter(it=>cv.set.has(it.key) && !reported.set.has(it.key));
+
+  let note = r.proven ? "✅ 最適性を証明済み（これより少ない症例数の組み合わせは存在しません）" : "⚠ 計算上限に達したため最適性は未証明です（見つかった最良解を表示）";
+  if(r.complete) note += r.solutions.length>1 ? `<br>最小数の組み合わせは全${r.solutions.length}通りです。` : "<br>最小数の組み合わせはこの1通りのみです。";
+  else if(r.solutions.length>=10) note += `<br>最小数の組み合わせは${r.solutions.length}通り以上あります（先頭${r.solutions.length}件を表示）。`;
+  else note += `<br>最小数の組み合わせを${r.solutions.length}通り表示しています（時間の都合で列挙を打ち切ったため、他にもある可能性があります）。`;
+  let h = `<div class="card">
+    <div class="stat"><div><div class="muted">最小症例数</div><div class="big">${r.opt}<span style="font-size:16px"> 症例</span></div></div>
+    <div><div class="muted">登録症例</div><div style="font-size:18px;font-weight:700">${snap.length} 症例</div></div>
+    <div><div class="muted">申告できる項目</div><div style="font-size:18px;font-weight:700">${reported.total} / ${NITEMS}</div></div></div>
+    <p class="muted" style="margin:8px 0 0">${note}<br>※ EPOC2の「1症例につき${MAX_PER_CASE}項目まで」の制限を考慮した結果です。</p>
+    <hr class="sep">${progressHTML(reported)}
+  </div>` + missingHTML(cv);
+
+  if(capShort.length){
+    h += `<div class="warnbox"><h2>⚠ 申告枠不足 ${capShort.length}件</h2>
+      <div class="muted" style="margin-bottom:6px">経験はしていますが、該当する症例がどれも${MAX_PER_CASE}項目の枠を使い切ってしまうため申告できません。この項目を含む症例を追加で登録してください。</div>
+      <div class="chips">${capShort.map(it=>`<span class="chip w">${CATS[it.cat].short}${it.no}. ${esc(it.name)}</span>`).join("")}</div></div>`;
+  }
+  if(r.solutions.length>1){
+    h += `<div class="cands">${r.solutions.map((_,i)=>`<button class="${i===curCand?"active":""}" onclick="curCand=${i};renderResult()">候補${i+1}</button>`).join("")}</div>`;
+  }
+  h += `<div class="card"><h2>申告の割り当て案${r.solutions.length>1?`（候補${curCand+1}）`:""}</h2>
+    <p class="muted" style="margin-top:0">各症例のレポートで「この症例で申告する項目」（各${MAX_PER_CASE}項目以内）にチェックを入れれば、項目が重複なく埋まります。</p>`;
+  sol.forEach(ci=>{
+    const c = snap[ci];
+    const mine = Object.keys(asg).filter(e=>asg[e]===ci).map(Number).sort((a,b)=>a-b);
+    const others = c.items.map(k=>IDX[k]).filter(e=>asg[e]!==ci);
+    h += `<div class="plan"><div class="cid">${esc(c.id)} <span class="muted" style="font-weight:400">（申告 ${mine.length}/${MAX_PER_CASE}項目）</span></div>
+      ${c.memo?`<div class="muted">${esc(c.memo)}</div>`:""}
+      <div class="lbl">この症例で申告する項目</div><div class="chips">${mine.map(e=>chip(ITEMS[e].key)).join("")}</div>
+      ${others.length?`<div class="lbl">該当するが申告しない項目（他症例で申告／枠の都合）</div><div class="chips">${others.map(e=>chip(ITEMS[e].key,"g")).join("")}</div>`:""}
+    </div>`;
+  });
+  h += `<button class="btn sec small" onclick="copyPlan()">割り当て案をテキストでコピー</button></div>`;
+
+  h += `<div class="card"><h2>項目別の対応表</h2>
+    <p class="muted" style="margin-top:0">「申告症例」＝割り当て案での申告先。「登録中の該当症例」は全登録症例のうち該当するもの（太字＝選ばれた症例）。</p>
+    <div style="overflow-x:auto"><table class="map"><thead><tr><th>No</th><th>項目</th><th>申告症例</th><th>登録中の該当症例</th></tr></thead><tbody>`;
+  ["S","D"].forEach(cat=>{
+    h += `<tr class="cath"><td colspan="4">${CATS[cat].label}</td></tr>`;
+    ITEMS.forEach((it,e)=>{
+      if(it.cat!==cat) return;
+      const all = snap.map((c,ci)=>c.items.includes(it.key)?ci:-1).filter(x=>x>=0);
+      if(!all.length){ h += `<tr class="miss"><td class="no">${it.no}</td><td>${esc(it.name)}</td><td colspan="2">⚠ 未経験</td></tr>`; return; }
+      const allTxt = all.map(ci=>inSol.has(ci)?`<b>${esc(snap[ci].id)}</b>`:esc(snap[ci].id)).join("、");
+      const a = asg[e];
+      h += a===undefined
+        ? `<tr class="miss"><td class="no">${it.no}</td><td>${esc(it.name)}</td><td>⚠ 枠不足</td><td>${all.length}件：${allTxt}</td></tr>`
+        : `<tr><td class="no">${it.no}</td><td>${esc(it.name)}</td><td class="assign">${esc(snap[a].id)}</td><td class="muted">${all.length}件：${allTxt}</td></tr>`;
+    });
+  });
+  h += `</tbody></table></div></div>`;
+  box.innerHTML = h;
+}
+
+function copyPlan(){
+  const r=lastResult; if(!r) return;
+  const sol=r.solutions[curCand], asg=r.assignments[curCand], snap=r.snapshot;
+  const tag = e => `[${CATS[ITEMS[e].cat].short}${ITEMS[e].no}] ${ITEMS[e].name}`;
+  let t = `EPOC2 申告割り当て案（最小${r.opt}症例・1症例${MAX_PER_CASE}項目まで）\n`;
+  sol.forEach(ci=>{
+    const mine=Object.keys(asg).filter(e=>asg[e]===ci).map(Number).sort((a,b)=>a-b);
+    t += `\n■ ${snap[ci].id}${snap[ci].memo?`（${snap[ci].memo}）`:""}　${mine.length}/${MAX_PER_CASE}項目\n` + mine.map(e=>`  ・${tag(e)}`).join("\n") + "\n";
+  });
+  const miss = ITEMS.map((_,e)=>e).filter(e=>!snap.some(c=>c.items.includes(ITEMS[e].key)));
+  if(miss.length) t += `\n■ 未経験項目（${miss.length}）\n` + miss.map(e=>`  ・${tag(e)}`).join("\n") + "\n";
+  const short = ITEMS.map((_,e)=>e).filter(e=>asg[e]===undefined && !miss.includes(e));
+  if(short.length) t += `\n■ 申告枠不足（${short.length}）\n` + short.map(e=>`  ・${tag(e)}`).join("\n") + "\n";
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(()=>toast("コピーしました"), ()=>fallbackCopy(t));
+  else fallbackCopy(t);
+}
+function fallbackCopy(t){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy"); toast("コピーしました");}catch(e){toast("コピーできませんでした");} ta.remove(); }
+
+/* ================= エクスポート／インポート ================= */
+let dlNS; // 共有ページ上では claude.use("downloads") 経由で保存（使えない環境では通常のダウンロード）
+async function download(name, text, type){
+  try{
+    if(dlNS===undefined) dlNS = (window.claude && typeof window.claude.use==="function") ? await window.claude.use("downloads") : null;
+  }catch(e){ dlNS = null; }
+  if(dlNS){
+    try{ await dlNS.save({filename:name, data:text}); toast("保存しました"); }
+    catch(e){ if(e && e.code==="declined") return; if(e && e.code==="rate_limited"){ toast("少し待ってからもう一度お試しください"); return; } dlNS = null; plainDownload(name, text, type); }
+    return;
+  }
+  plainDownload(name, text, type);
+}
+function plainDownload(name, text, type){
+  const blob = new Blob([text], {type});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+const stamp = ()=>{ const d=new Date(), p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`; };
+const csvCell = v => /[",\r\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v;
+function buildCSV(cases){
+  const head = ["症例ID", ...ITEMS.map(csvLabel), "メモ"];
+  const rows = cases.map(c=>{ const s=new Set(c.items); return [c.id, ...ITEMS.map(it=>s.has(it.key)?"1":""), c.memo||""]; });
+  return "﻿" + [head, ...rows].map(r=>r.map(v=>csvCell(String(v))).join(",")).join("\r\n");
+}
+function exportCSV(){ download(`epoc2_cases_${stamp()}.csv`, buildCSV(state.cases), "text/csv;charset=utf-8"); }
+function exportJSON(){
+  const o = {format:"epoc2-cover", version:1, exportedAt:new Date().toISOString(), items:ITEMS.map(it=>({key:it.key,category:CATS[it.cat].short,no:it.no,name:it.name})), cases:state.cases};
+  download(`epoc2_cases_${stamp()}.json`, JSON.stringify(o,null,2), "application/json");
+}
+function parseCSV(text){
+  text = text.replace(/^﻿/,"");
+  const rows=[]; let row=[], cell="", q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=ch; }
+    else if(ch==='"') q=true;
+    else if(ch===','){ row.push(cell); cell=""; }
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; row.push(cell); rows.push(row); row=[]; cell=""; }
+    else cell+=ch;
+  }
+  if(cell!==""||row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r=>r.some(v=>v.trim()!==""));
+}
+const truthy = v => /^(1|○|◯|〇|y|yes|true|x|✓|✔)$/i.test(String(v).trim());
+function casesFromCSV(text){
+  const rows = parseCSV(text); if(!rows.length) throw new Error("空のファイルです");
+  const norm = s => String(s).replace(/\s/g,"");
+  const head = rows[0].map(norm);
+  const labelMap = {};
+  ITEMS.forEach((it,i)=>{ [csvLabel(it), it.key, `${CATS[it.cat].short}${it.no}_${it.name}`, it.name].forEach(l=>labelMap[norm(l)]=i); });
+  const isHeader = head.slice(1).some(h=>h in labelMap) || /id/i.test(head[0]) || head[0].includes("症例");
+  const colItem = [];
+  let memoCol = -1;
+  if(isHeader){
+    head.forEach((h,j)=>{ if(j===0) return; if(h in labelMap) colItem[j]=labelMap[h]; else if(h==="メモ"||/memo|note/i.test(h)) memoCol=j; });
+  } else { for(let j=1;j<=NITEMS;j++) colItem[j]=j-1; memoCol = NITEMS+1; }
+  const out=[];
+  rows.slice(isHeader?1:0).forEach(r=>{
+    const id=(r[0]||"").trim(); if(!id) return;
+    const items=[]; r.forEach((v,j)=>{ if(colItem[j]!=null && truthy(v)) items.push(ITEMS[colItem[j]].key); });
+    out.push({id, items, memo: memoCol>=0 ? (r[memoCol]||"").trim() : ""});
+  });
+  return out;
+}
+function casesFromJSON(text){
+  const o = JSON.parse(text);
+  const arr = Array.isArray(o) ? o : o.cases;
+  if(!Array.isArray(arr)) throw new Error("cases 配列が見つかりません");
+  return arr.map(c=>{
+    let items = c.items || [];
+    if(!Array.isArray(items) && typeof items==="object") items = Object.keys(items).filter(k=>items[k]);
+    items = items.map(k=> k in IDX ? k : (ITEMS.find(it=>it.name===k)||{}).key).filter(Boolean);
+    return {id:c.id, memo:c.memo||"", items};
+  });
+}
+function setImpMode(b){ document.querySelectorAll("#impMode button").forEach(x=>x.classList.toggle("active", x===b)); }
+function importFile(input){
+  const f = input.files[0]; if(!f) return;
+  const mode = document.querySelector("#impMode button.active").dataset.v;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const text = String(rd.result);
+      const isJSON = /\.json$/i.test(f.name) || /^\s*[\[{]/.test(text);
+      const list = (isJSON ? casesFromJSON(text) : casesFromCSV(text)).map(normCase).filter(Boolean);
+      if(!list.length) throw new Error("読み込める症例がありません");
+      if(mode==="replace"){
+        if(!confirm(`既存の${state.cases.length}症例を削除し、${list.length}症例に置き換えます。よろしいですか？`)) return;
+        state.cases = [];
+      } else if(state.isDummy && confirm("現在のダミーデータを削除してから読み込みますか？")){ state.cases=[]; }
+      state.isDummy = false;
+      let add=0, upd=0;
+      list.forEach(c=>{ const i=state.cases.findIndex(x=>x.id===c.id); if(i>=0){state.cases[i]=c;upd++;} else {state.cases.push(c);add++;} });
+      save(); toast(`読み込み完了：追加${add}件・上書き${upd}件`); showTab("list");
+    }catch(e){ alert("読み込みに失敗しました：" + e.message); }
+    finally{ input.value=""; }
+  };
+  rd.readAsText(f, "utf-8");
+}
+function loadDummy(){
+  if(state.cases.length && !confirm("現在のデータをダミーデータ（22症例）で置き換えます。よろしいですか？")) return;
+  state = {cases:dummyCases(), isDummy:true}; save(); toast("ダミーデータを読み込みました"); showTab("list");
+}
+function clearAll(){
+  if(!confirm("全ての症例データを削除します。元に戻せません。よろしいですか？")) return;
+  state = {cases:[], isDummy:false}; save(); toast("全データを削除しました"); showTab("list");
+}
+function renderDataInfo(){
+  let bytes=0; try{ bytes=(localStorage.getItem(STORE_KEY)||"").length*2; }catch(e){}
+  $("storageInfo").textContent = `保存中：${state.cases.length}症例（約${(bytes/1024).toFixed(1)} KB）`;
+}
+
+/* ================= 起動 ================= */
+buildPicker();
+load();
+renderList();
+</script>
+</body>
+</html>
